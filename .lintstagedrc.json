@@ -1,0 +1,3 @@
+{
+    "*.ts": ["npx eslint", "npx prettier --write"]
+}
