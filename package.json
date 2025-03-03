@@ -22,6 +22,7 @@
         "@types/supertest": "^6.0.2",
         "@types/swagger-jsdoc": "^6.0.4",
         "@types/swagger-ui-express": "^4.1.8",
+        "@types/validator": "^13.12.2",
         "@typescript-eslint/eslint-plugin": "^8.25.0",
         "@typescript-eslint/parser": "^8.25.0",
         "eslint": "^9.21.0",
@@ -52,6 +53,8 @@
         "resend": "^4.1.2",
         "swagger-jsdoc": "^6.2.8",
         "swagger-ui-express": "^5.0.1",
+        "uuid": "^11.1.0",
+        "validator": "^13.12.0",
         "winston": "^3.17.0"
     }
 }
