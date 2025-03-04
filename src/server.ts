@@ -1,6 +1,6 @@
 import "dotenv/config";
 import express from "express";
-import { customerControllerRouter } from "./src/routes/customerRoutes";
+import { customerControllerRouter } from "./routes/customerRoutes";
 
 const app = express();
 app.use(express.json());
