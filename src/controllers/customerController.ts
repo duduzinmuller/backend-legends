@@ -14,7 +14,6 @@ export const CustomerController = async (httpRequest: { body: any }) => {
         const params = httpRequest.body;
 
         const requiredFields = ["name", "email", "phone"];
-
         for (const field of requiredFields) {
             if (!params[field] || params[field].trim().length === 0) {
                 return badRequest({ message: `Parametro ausente ${field}` });

@@ -1,6 +1,5 @@
 import { Order } from "@prisma/client";
 import { prisma } from "../utils/prisma";
-
 interface CustomerServiceProps {
     id: string;
     email: string;
