@@ -1,6 +1,12 @@
 import { CustomerService } from "../services/customerService";
-import validator from "validator";
 import { v4 as uuidv4 } from "uuid";
+import {
+    badRequest,
+    checkIfEmailIsValid,
+    created,
+    emailIsAlreadyInUseResponse,
+    serverError,
+} from "./helpers/index";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const CustomerController = async (httpRequest: { body: any }) => {
@@ -11,24 +17,13 @@ export const CustomerController = async (httpRequest: { body: any }) => {
 
         for (const field of requiredFields) {
             if (!params[field] || params[field].trim().length === 0) {
-                return {
-                    statusCode: 400,
-                    body: {
-                        message: `Parâmetro ausente: ${field}`,
-                    },
-                };
+                return badRequest({ message: `Parametro ausente ${field}` });
             }
         }
 
-        const emailIsValid = validator.isEmail(params.email);
-
+        const emailIsValid = checkIfEmailIsValid(params.email);
         if (!emailIsValid) {
-            return {
-                statusCode: 400,
-                body: {
-                    message: "E-mail inválido",
-                },
-            };
+            return emailIsAlreadyInUseResponse();
         }
 
         const { name, email, phone } = params;
@@ -42,15 +37,9 @@ export const CustomerController = async (httpRequest: { body: any }) => {
             orders: [],
         });
 
-        return {
-            statusCode: 201,
-            body: customer,
-        };
+        return created(JSON.stringify(customer));
     } catch (error) {
         console.error(error);
-        return {
-            statusCode: 500,
-            message: "Erro interno no servidor",
-        };
+        return serverError();
     }
 };
