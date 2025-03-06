@@ -1,17 +1,29 @@
 import { CustomerController } from "./customerController";
 
 describe("CustomerController", () => {
-    class CustomerServiceStub {
-        execute(customer: { name: string; email: string; phone: string }) {
-            return customer;
+    class CustomerServiceImpl {
+        async execute(customer: {
+            name: string;
+            email: string;
+            phone?: string;
+        }) {
+            return Promise.resolve({
+                id: "uuid",
+                name: customer.name,
+                email: customer.email,
+                phone: customer.phone ?? null,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            });
         }
     }
+
     it("should return 201 when creating a customer successfully", async () => {
-        //arrange
-        const customerService = new CustomerServiceStub();
+        // Arrange
+        const customerService = new CustomerServiceImpl();
         const customerController = new CustomerController(customerService);
 
-        //act
+        // Act
         const httpRequest = {
             body: {
                 name: "Dudu",
@@ -21,7 +33,8 @@ describe("CustomerController", () => {
         };
 
         const result = await customerController.handle(httpRequest);
-        //assert
+
+        // Assert
         expect(result.statusCode).toBe(201);
     });
 });
