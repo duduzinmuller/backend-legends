@@ -1,67 +1,87 @@
-import { Resend } from "resend";
-import { prisma } from "../utils/prisma";
-import { logger } from "../utils/logger";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+import {
+    sendEmail,
+    EmailData,
+    getPaymentConfirmationTemplate,
+    getPaymentFailedTemplate,
+    getWelcomeTemplate,
+} from "../config/email.config";
 
 export class EmailService {
-    async sendEmail({
-        recipient,
-        subject,
-        content,
-        from = `Payment Automation <${process.env.RESEND_FROM_EMAIL || "notifications@example.com"}>`,
-    }: {
-        recipient: string;
-        subject: string;
-        content: string;
-        from?: string;
-    }) {
-        try {
-            const emailNotification = await prisma.emailNotification.create({
-                data: {
-                    recipient,
-                    subject,
-                    content,
-                    status: "PENDING",
-                },
-            });
+    /**
+     * Envia um e-mail de confirmação de pagamento
+     * @param customerName Nome do cliente
+     * @param orderNumber Número do pedido
+     * @param amount Valor do pedido
+     * @param paymentDate Data do pagamento
+     * @param items Lista de itens no pedido
+     */
+    public static async sendPaymentConfirmationEmail(
+        customerName: string,
+        orderNumber: string,
+        amount: string,
+        paymentDate: string,
+        items: Array<{ name: string; quantity: number; price: number }>,
+    ): Promise<void> {
+        const subject = "Confirmação de Pagamento";
+        const html = getPaymentConfirmationTemplate(
+            customerName,
+            orderNumber,
+            amount,
+            paymentDate,
+            items,
+        );
 
-            const { data, error } = await resend.emails.send({
-                from,
-                to: recipient,
-                subject,
-                html: content,
-            });
+        const emailData: EmailData = {
+            to: customerName, // Ajuste para o e-mail do cliente
+            subject,
+            html,
+        };
 
-            if (error) {
-                logger.error("Erro ao enviar email:", error);
+        await sendEmail(emailData);
+    }
 
-                await prisma.emailNotification.update({
-                    where: { id: emailNotification.id },
-                    data: {
-                        status: "FAILED",
-                        errorMessage: error.message,
-                    },
-                });
-                throw new Error(`Falha ao enviar email: ${error.message}`);
-            }
+    /**
+     * Envia um e-mail de falha no pagamento
+     * @param customerName Nome do cliente
+     * @param orderNumber Número do pedido
+     * @param errorMessage Mensagem de erro
+     */
+    public static async sendPaymentFailedEmail(
+        customerName: string,
+        orderNumber: string,
+        errorMessage: string,
+    ): Promise<void> {
+        const subject = "Problema com Pagamento";
+        const html = getPaymentFailedTemplate(
+            customerName,
+            orderNumber,
+            errorMessage,
+        );
 
-            logger.info(
-                `Email enviado com sucesso para ${recipient}. ID: ${data?.id}`,
-            );
+        const emailData: EmailData = {
+            to: customerName, // Ajuste para o e-mail do cliente
+            subject,
+            html,
+        };
 
-            await prisma.emailNotification.update({
-                where: { id: emailNotification.id },
-                data: {
-                    status: "SENT",
-                    sentAt: new Date(),
-                },
-            });
+        await sendEmail(emailData);
+    }
 
-            return data;
-        } catch (error) {
-            logger.error("Erro ao enviar email:", error);
-            throw error;
-        }
+    /**
+     * Envia um e-mail de boas-vindas
+     * @param customerName Nome do cliente
+     */
+
+    public static async sendWelcomeEmail(customerName: string): Promise<void> {
+        const subject = "Bem-vindo à nossa plataforma!";
+        const html = getWelcomeTemplate(customerName);
+
+        const emailData: EmailData = {
+            to: customerName, // Ajuste para o e-mail do cliente
+            subject,
+            html,
+        };
+
+        await sendEmail(emailData);
     }
 }
