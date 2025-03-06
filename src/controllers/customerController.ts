@@ -1,44 +1,49 @@
-import { CustomerService } from "../services/customerService";
 import { v4 as uuidv4 } from "uuid";
-import {
-    badRequest,
-    checkIfEmailIsValid,
-    created,
-    emailIsAlreadyInUseResponse,
-    serverError,
-} from "./helpers/index";
+import { created, serverError, badRequest } from "./helpers/index";
+import { createCustomerSchema } from "../schemas/customer";
+import { ZodError } from "zod";
+import { CustomerServiceImpl } from "../services/customerService";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const CustomerController = async (httpRequest: { body: any }) => {
-    try {
-        const params = httpRequest.body;
+export interface Customer {
+    id: string;
+    name: string;
+    email: string;
+    phone?: string;
+}
 
-        const requiredFields = ["name", "email", "phone"];
-        for (const field of requiredFields) {
-            if (!params[field] || params[field].trim().length === 0) {
-                return badRequest({ message: `Parametro ausente ${field}` });
-            }
-        }
+export class CustomerController {
+    private customerService: CustomerServiceImpl;
 
-        const emailIsValid = checkIfEmailIsValid(params.email);
-        if (!emailIsValid) {
-            return emailIsAlreadyInUseResponse();
-        }
-
-        const { name, email, phone } = params;
-        const id = uuidv4();
-
-        const customer = await CustomerService({
-            id,
-            name,
-            email,
-            phone,
-            orders: [],
-        });
-
-        return created(JSON.stringify(customer));
-    } catch (error) {
-        console.error(error);
-        return serverError();
+    constructor(customerService: CustomerServiceImpl) {
+        this.customerService = customerService;
     }
-};
+
+    async handle(httpRequest: {
+        body: { name: string; email: string; phone?: string };
+    }) {
+        try {
+            const params = httpRequest.body;
+
+            await createCustomerSchema.parseAsync(params);
+
+            const { name, email, phone } = params;
+            const id = uuidv4();
+
+            const customer = await this.customerService.execute({
+                id,
+                name,
+                email,
+                phone,
+                orders: [],
+            });
+
+            return created(JSON.stringify(customer));
+        } catch (error) {
+            if (error instanceof ZodError) {
+                return badRequest({ message: error.errors[0].message });
+            }
+            console.error(error);
+            return serverError();
+        }
+    }
+}

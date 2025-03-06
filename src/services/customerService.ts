@@ -1,5 +1,6 @@
-import { Order } from "@prisma/client";
+import { Order, Customer } from "@prisma/client";
 import { prisma } from "../utils/prisma";
+
 interface CustomerServiceProps {
     id: string;
     email: string;
@@ -8,32 +9,35 @@ interface CustomerServiceProps {
     orders: Order[];
 }
 
-export const CustomerService = async ({
-    id,
-    name,
-    email,
-    phone,
-    orders,
-}: CustomerServiceProps) => {
-    try {
-        const customer = await prisma.customer.create({
-            data: {
-                id,
-                name,
-                email,
-                phone,
-                orders: {
-                    create: orders.map((order) => ({
-                        id: order.id,
-                        status: order.status,
-                        totalAmount: order.totalAmount,
-                        createdAt: order.updatedAt,
-                    })),
+export class CustomerServiceImpl {
+    async execute({
+        id,
+        name,
+        email,
+        phone,
+        orders,
+    }: CustomerServiceProps): Promise<Customer> {
+        try {
+            const customer = await prisma.customer.create({
+                data: {
+                    id,
+                    name,
+                    email,
+                    phone,
+                    orders: {
+                        create: orders.map((order) => ({
+                            id: order.id,
+                            status: order.status,
+                            totalAmount: order.totalAmount,
+                            createdAt: order.createdAt,
+                        })),
+                    },
                 },
-            },
-        });
-        return customer;
-    } catch (error) {
-        console.error(error);
+            });
+            return customer;
+        } catch (error) {
+            console.error(error);
+            throw new Error("Error creating customer");
+        }
     }
-};
+}
