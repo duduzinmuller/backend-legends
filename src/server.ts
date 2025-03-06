@@ -1,10 +1,36 @@
 import "dotenv/config";
-import express from "express";
-import { customerControllerRouter } from "./routes/customerRoutes";
+import app from "./app";
 
-const app = express();
-app.use(express.json());
+// Configuração da porta
+const PORT = process.env.PORT || 8000;
 
-app.use(customerControllerRouter);
+// Inicialização do servidor
+const server = app.listen(PORT, () => {
+    console.log(
+        `Servidor rodando na porta ${PORT} em modo ${process.env.NODE_ENV || "development"}`,
+    );
+});
 
-app.listen(8000, () => console.log("Rodando na porta 8000"));
+// Tratamento de exceções não tratadas
+process.on("uncaughtException", (error) => {
+    console.error("Exceção não tratada:", error);
+    process.exit(1);
+});
+
+// Tratamento de rejeições não tratadas
+process.on("unhandledRejection", (error) => {
+    console.error("Rejeição não tratada:", error);
+    server.close(() => {
+        process.exit(1);
+    });
+});
+
+// Tratamento de sinais de interrupção
+process.on("SIGTERM", () => {
+    console.info("SIGTERM recebido. Desligando graciosamente.");
+    server.close(() => {
+        console.info("Servidor encerrado.");
+    });
+});
+
+export default server;
