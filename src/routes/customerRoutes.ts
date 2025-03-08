@@ -1,23 +1,12 @@
 import express, { Request, Response } from "express";
 import { CustomerController } from "../controllers/customerController";
-<<<<<<< HEAD
 import { CustomerServiceImpl } from "../services/customerService";
-=======
 import { logger } from "../utils/logger";
->>>>>>> 661404c (feat(routes): implement API routes for customers, orders, payments and webhooks)
 
 const router = express.Router();
 const customerService = new CustomerServiceImpl();
 const customerController = new CustomerController(customerService);
 
-<<<<<<< HEAD
-router.post("/create/customer", async (request, response) => {
-    const customerResponse = await customerController.handle({
-        body: request.body,
-    });
-
-    response.status(customerResponse.statusCode).send(customerResponse.body);
-=======
 /**
  * @swagger
  * /customers:
@@ -40,17 +29,23 @@ router.post("/create/customer", async (request, response) => {
  */
 router.post("/", async (req: Request, res: Response) => {
     try {
-        const customerResponse = await CustomerController({ body: req.body });
-        const { statusCode, body } = customerResponse;
+        const customerResponse = await customerController.handle({
+            body: req.body,
+        });
 
         // Tratando o log de forma segura, verificando o tipo de body
-        if (typeof body === "object" && body !== null) {
-            logger.info(`Cliente criado: ${JSON.stringify(body)}`);
+        if (
+            typeof customerResponse.body === "object" &&
+            customerResponse.body !== null
+        ) {
+            logger.info(
+                `Cliente criado: ${JSON.stringify(customerResponse.body)}`,
+            );
         } else {
             logger.info("Cliente criado com sucesso");
         }
 
-        res.status(statusCode).json(body);
+        res.status(customerResponse.statusCode).json(customerResponse.body);
     } catch (error) {
         logger.error("Erro ao criar cliente:", error);
         res.status(500).json({
@@ -192,7 +187,6 @@ router.delete("/:id", async (req: Request, res: Response) => {
             message: "Erro ao processar requisição",
         });
     }
->>>>>>> 661404c (feat(routes): implement API routes for customers, orders, payments and webhooks)
 });
 
 export const customerControllerRouter = router;
