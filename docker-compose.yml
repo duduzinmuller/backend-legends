@@ -7,7 +7,7 @@ services:
         environment:
             POSTGRES_PASSWORD: backend
             POSTGRES_USER: root
-            POSTGRES_DB: backend
+            POSTGRES_DB: backendapp
         ports:
             - "5432:5432"
         volumes:

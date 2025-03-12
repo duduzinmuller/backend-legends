@@ -18,6 +18,7 @@ model Customer {
   email     String   @unique
   name      String
   phone     String?
+    document  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   orders    Order[]
@@ -54,7 +55,7 @@ model OrderItem {
   productId String
   product   Product  @relation(fields: [productId], references: [id])
   quantity  Int
-  unitPrice Decimal  @db.Decimal(10, 2)
+  price     Decimal  @db.Decimal(10, 2) 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -69,14 +70,17 @@ model Payment {
   status             PaymentStatus @default(PENDING)
   amount             Decimal       @db.Decimal(10, 2)
   paymentMethod      String?
+  paymentMethodId    String?       
   paymentProvider    String        @default("MERCADOPAGO")
   paymentUrl         String?       
   transactionDetails Json?         
+  notificationSent   Boolean       @default(false) 
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
 
   @@index([externalId])
 }
+
 
 model EmailNotification {
   id           String   @id @default(uuid())
@@ -104,8 +108,11 @@ enum PaymentStatus {
   PROCESSING
   APPROVED
   REJECTED
-  REFUNDED
+  IN_PROCESS
+  IN_MEDIATION
   CANCELLED
+  REFUNDED
+  CHARGED_BACK
 }
 
 enum EmailStatus {
