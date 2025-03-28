@@ -6,6 +6,8 @@ import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import { customerControllerRouter } from "./routes/customerRoutes";
 import { errorHandler } from "./middlewares/error.middleware";
+import { emailRoutes } from "./routes/emailRoutes";
+import { orderRoutes } from "./routes/orderRoutes";
 
 // Inicialização da aplicação Express
 const app = express();
@@ -47,8 +49,9 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 // Rotas da API
 app.use("/api/customers", customerControllerRouter);
 // Adicionar outras rotas quando estiverem disponíveis
-// app.use("/api/orders", orderRoutes);
+app.use("/api/orders", orderRoutes);
 // app.use("/api/payments", paymentRoutes);
+app.use("/api/send-email", emailRoutes);
 
 // Middleware para rotas não encontradas
 app.use("*", (req, res) => {
