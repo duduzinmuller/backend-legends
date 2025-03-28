@@ -5,11 +5,13 @@ import {
     getPaymentFailedTemplate,
     getWelcomeTemplate,
 } from "../config/email.config";
+import { logger } from "../utils/logger";
 
 export class EmailService {
     /**
      * Envia um e-mail de confirmação de pagamento
      * @param customerName Nome do cliente
+     * @param customerEmail Email do cliente
      * @param orderNumber Número do pedido
      * @param amount Valor do pedido
      * @param paymentDate Data do pagamento
@@ -17,6 +19,7 @@ export class EmailService {
      */
     public static async sendPaymentConfirmationEmail(
         customerName: string,
+        customerEmail: string,
         orderNumber: string,
         amount: string,
         paymentDate: string,
@@ -32,22 +35,27 @@ export class EmailService {
         );
 
         const emailData: EmailData = {
-            to: customerName, // Ajuste para o e-mail do cliente
+            to: customerEmail,
             subject,
             html,
         };
 
+        logger.info(
+            `Enviando email de confirmação de pagamento para: ${customerEmail}`,
+        );
         await sendEmail(emailData);
     }
 
     /**
      * Envia um e-mail de falha no pagamento
      * @param customerName Nome do cliente
+     * @param customerEmail Email do cliente
      * @param orderNumber Número do pedido
      * @param errorMessage Mensagem de erro
      */
     public static async sendPaymentFailedEmail(
         customerName: string,
+        customerEmail: string,
         orderNumber: string,
         errorMessage: string,
     ): Promise<void> {
@@ -57,31 +65,37 @@ export class EmailService {
             orderNumber,
             errorMessage,
         );
-
         const emailData: EmailData = {
-            to: customerName, // Ajuste para o e-mail do cliente
+            to: customerEmail,
             subject,
             html,
         };
 
+        logger.info(
+            `Enviando email de falha de pagamento para: ${customerEmail}`,
+        );
         await sendEmail(emailData);
     }
 
     /**
      * Envia um e-mail de boas-vindas
      * @param customerName Nome do cliente
+     * @param customerEmail Email do cliente
      */
-
-    public static async sendWelcomeEmail(customerName: string): Promise<void> {
+    public static async sendWelcomeEmail(
+        customerName: string,
+        customerEmail: string,
+    ): Promise<void> {
         const subject = "Bem-vindo à nossa plataforma!";
         const html = getWelcomeTemplate(customerName);
 
         const emailData: EmailData = {
-            to: customerName, // Ajuste para o e-mail do cliente
+            to: customerEmail,
             subject,
             html,
         };
 
+        logger.info(`Enviando email de boas-vindas para: ${customerEmail}`);
         await sendEmail(emailData);
     }
 }
