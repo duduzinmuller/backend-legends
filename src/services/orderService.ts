@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { PrismaClient, Order, OrderItem } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 
 const prisma = new PrismaClient();
 
 export class OrderService {
+    // Criação do pedido
     async createOrder(
         customerId: string,
         items: { productId: string; quantity: number }[],
@@ -63,5 +66,42 @@ export class OrderService {
         });
 
         return order;
+    }
+
+    // Buscar pedido por ID
+    async findById(id: string): Promise<Order | null> {
+        return await prisma.order.findUnique({
+            where: { id },
+            include: { items: true },
+        });
+    }
+
+    // Listar todos os pedidos
+    async listAll(query: any): Promise<Order[]> {
+        // Aqui, você pode aplicar filtros de query se necessário (por exemplo, status)
+        return await prisma.order.findMany({
+            where: {
+                // Adicione condições de filtro se necessário
+            },
+            include: { items: true },
+        });
+    }
+
+    // Atualizar o status do pedido
+    async updateStatus(id: string, status: string): Promise<Order | null> {
+        return await prisma.order.update({
+            where: { id },
+            data: { status: "REFUNDED" },
+            include: { items: true },
+        });
+    }
+
+    // Cancelar pedido
+    async cancel(id: string): Promise<Order | null> {
+        return await prisma.order.update({
+            where: { id },
+            data: { status: "CANCELLED" },
+            include: { items: true },
+        });
     }
 }
