@@ -1,7 +1,9 @@
-import express, { Request, Response } from "express";
+import express from "express";
+import { OrderController } from "../controllers/orderController";
 import { logger } from "../utils/logger";
 
 const router = express.Router();
+const orderController = new OrderController();
 
 /**
  * @swagger
@@ -44,19 +46,14 @@ const router = express.Router();
  *       500:
  *         description: Erro no servidor
  */
-router.post("/", async (req: Request, res: Response) => {
+router.post("/", async (req, res) => {
     try {
-        // Implemente aqui a lógica de criação de pedido
-        logger.info("Solicitação para criar pedido recebida");
-        res.status(501).json({
-            status: "error",
-            message: "Criação de pedido ainda não implementada",
-        });
+        await orderController.createOrder(req, res);
     } catch (error) {
         logger.error("Erro ao criar pedido:", error);
         res.status(500).json({
             status: "error",
-            message: "Erro ao processar requisição",
+            message: "Erro interno do servidor",
         });
     }
 });
@@ -79,20 +76,14 @@ router.post("/", async (req: Request, res: Response) => {
  *       404:
  *         description: Pedido não encontrado
  */
-router.get("/:id", async (req: Request, res: Response) => {
+router.get("/:id", async (req, res) => {
     try {
-        const { id } = req.params;
-        logger.info(`Buscando pedido: ${id}`);
-
-        res.status(501).json({
-            status: "error",
-            message: "Busca de pedido ainda não implementada",
-        });
+        await orderController.getOrderById(req, res);
     } catch (error) {
         logger.error(`Erro ao buscar pedido ${req.params.id}:`, error);
         res.status(500).json({
             status: "error",
-            message: "Erro ao processar requisição",
+            message: "Erro interno do servidor",
         });
     }
 });
@@ -119,22 +110,14 @@ router.get("/:id", async (req: Request, res: Response) => {
  *       200:
  *         description: Lista de pedidos
  */
-router.get("/", async (req: Request, res: Response) => {
+router.get("/", async (req, res) => {
     try {
-        const { customerId, status } = req.query;
-        logger.info(
-            `Listando pedidos. Filtros: ${JSON.stringify({ customerId, status })}`,
-        );
-
-        res.status(501).json({
-            status: "error",
-            message: "Listagem de pedidos ainda não implementada",
-        });
+        await orderController.listOrders(req, res);
     } catch (error) {
         logger.error("Erro ao listar pedidos:", error);
         res.status(500).json({
             status: "error",
-            message: "Erro ao processar requisição",
+            message: "Erro interno do servidor",
         });
     }
 });
@@ -171,17 +154,9 @@ router.get("/", async (req: Request, res: Response) => {
  *       404:
  *         description: Pedido não encontrado
  */
-router.patch("/:id/status", async (req: Request, res: Response) => {
+router.patch("/:id/status", async (req, res) => {
     try {
-        const { id } = req.params;
-        const { status } = req.body;
-
-        logger.info(`Atualizando status do pedido ${id} para ${status}`);
-
-        res.status(501).json({
-            status: "error",
-            message: "Atualização de status de pedido ainda não implementada",
-        });
+        await orderController.updateOrderStatus(req, res);
     } catch (error) {
         logger.error(
             `Erro ao atualizar status do pedido ${req.params.id}:`,
@@ -189,7 +164,7 @@ router.patch("/:id/status", async (req: Request, res: Response) => {
         );
         res.status(500).json({
             status: "error",
-            message: "Erro ao processar requisição",
+            message: "Erro interno do servidor",
         });
     }
 });
@@ -214,20 +189,14 @@ router.patch("/:id/status", async (req: Request, res: Response) => {
  *       404:
  *         description: Pedido não encontrado
  */
-router.delete("/:id", async (req: Request, res: Response) => {
+router.delete("/:id", async (req, res) => {
     try {
-        const { id } = req.params;
-        logger.info(`Cancelando pedido: ${id}`);
-
-        res.status(501).json({
-            status: "error",
-            message: "Cancelamento de pedido ainda não implementado",
-        });
+        await orderController.cancelOrder(req, res);
     } catch (error) {
         logger.error(`Erro ao cancelar pedido ${req.params.id}:`, error);
         res.status(500).json({
             status: "error",
-            message: "Erro ao processar requisição",
+            message: "Erro interno do servidor",
         });
     }
 });
