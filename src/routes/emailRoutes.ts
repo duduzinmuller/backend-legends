@@ -8,10 +8,11 @@ const asyncHandler =
             req: Request,
             res: Response,
             next: NextFunction,
-        ) => Promise<Response>,
+        ) => Promise<void | Response>,
     ) =>
-    (req: Request, res: Response, next: NextFunction) =>
+    (req: Request, res: Response, next: NextFunction): void => {
         Promise.resolve(fn(req, res, next)).catch(next);
+    };
 
 const router = Router();
 
@@ -67,7 +68,7 @@ const router = Router();
  *                       example: "Smartphone XYZ"
  *                     quantity:
  *                       type: number
- *                       description:
+ *                       description: Quantidade
  *                       example: 1
  *                     price:
  *                       type: number
@@ -81,6 +82,11 @@ const router = Router();
  *       500:
  *         description: Erro ao enviar o email
  */
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+router.post(
+    "/payment-confirmation",
+    asyncHandler(EmailController.sendPaymentConfirmation),
+);
 
 /**
  * @swagger
@@ -126,7 +132,6 @@ const router = Router();
  *         description: Erro ao enviar o email
  */
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
 router.post("/payment-failed", asyncHandler(EmailController.sendPaymentFailed));
 
 /**
@@ -163,7 +168,6 @@ router.post("/payment-failed", asyncHandler(EmailController.sendPaymentFailed));
  *         description: Erro ao enviar o email
  */
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
 router.post("/welcome", asyncHandler(EmailController.sendWelcome));
 
 export const emailRoutes = router;

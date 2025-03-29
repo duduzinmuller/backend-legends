@@ -10,7 +10,7 @@ const router = express.Router();
 // Registra as rotas
 router.use("/customers", customerControllerRouter);
 router.use("/orders", orderRoutes);
-router.use("/email", emailRoutes);
+router.use("/emails", emailRoutes);
 router.use("/payments", paymentRoutes);
 router.use("/webhooks", webhookRoutes);
 
